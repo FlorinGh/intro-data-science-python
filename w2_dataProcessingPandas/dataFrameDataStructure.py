@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Data Frame Data Structure
 '''
 Data Frames are 2D arrangements (tables with multiple columns)
@@ -65,5 +66,30 @@ copy_df['price'] = 0.8*copy_df['price']
 #copy_df['price'] *= 0.8
 #print copy_df
 
+# working on a series extracted from the dataFrame will affect the initial dataFrame:
+#print df
+prices = df['price']
+prices += 5
+#print prices
+#print df
+# in order to avoid this, used the copy() method
 
+###############################################################################
 
+add = 'D:/dataScience/introDataSciencePython/w2_dataProcessingPandas/'
+data = pd.read_csv(add + 'olympics.csv', index_col=0, skiprows=1)
+#print data.head()
+#print data.columns
+
+# clean up the header:
+for col in data.columns:
+    if col[:2] == '01':
+        data.rename(columns={col:'Gold'+col[4:]}, inplace=True)
+    if col[:2] == '02':
+        data.rename(columns={col:'Silver'+col[4:]}, inplace=True)
+    if col[:2] == '03':
+        data.rename(columns={col:'Bronze'+col[4:]}, inplace=True)
+    if col[:1] == '№':
+        data.rename(columns={col:'#'+col[4:]}, inplace=True)
+
+print data.head()
