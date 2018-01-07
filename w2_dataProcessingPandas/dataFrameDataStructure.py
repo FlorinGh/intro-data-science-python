@@ -92,4 +92,138 @@ for col in data.columns:
     if col[:1] == '№':
         data.rename(columns={col:'#'+col[4:]}, inplace=True)
 
-print data.head()
+#print data.head()
+
+###############################################################################
+# Boolean masking is a simple and easy way to filter
+# a boolean mask is an array of true and false values
+# using this array, the values that correspond to the true values are kept
+
+# we create a mask by applying a condition of a parameter:
+#print data['Gold'] > 2
+
+# using the mask when now create the query dataFrame:
+dataSummerGold = data.where(data['Gold']>0)
+#print dataSummerGold['Gold'].count()
+dataSummerGold = dataSummerGold.dropna(0)# 0 is default, don't need to use it
+# using 0 will drop the lines with no data
+# using 1 instead, will drop columns
+#print dataSummerGold.head()
+
+# another way to do this in only one line of code:
+dataSummerGold2 = data[data['Gold']>0]
+# this line filters out the row automatically
+#print dataSummerGold2.head()
+
+# masks can be combined to use a more complex filtering
+# the result is also a boolean mask
+# to combine mask we can use boolean operators
+
+# how many counties have receive at least a gold medal in the Summer olympics?
+#print len(data[data['Gold']>0])
+
+# how many counties have receive at least a gold medal one of the olympics, S or W?
+#print len(data[(data['Gold']>0) | (data['Gold.1']>0)])
+
+# is there any country that won a gold medal in the winter but never in the summer?
+#print len(data[(data['Gold']==0) & (data['Gold.1']>0)])
+#print data[(data['Gold']==0) & (data['Gold.1']>0)]
+
+### question:
+# Write a query to return all of the names of the people who bought products worth
+# more than $3.00
+pur_1 = pd.Series({'Name': 'Chris','Item Purchased': 'Dog Food','Cost': 22.50})
+pur_2 = pd.Series({'Name': 'Kevyn','Item Purchased': 'Kitty Litter','Cost': 2.50})
+pur_3 = pd.Series({'Name': 'Vinod','Item Purchased': 'Bird Seed','Cost': 5.00})
+
+# Ans1
+df2 = pd.DataFrame([pur_1, pur_2, pur_3], index=['Store 1', 'Store 1', 'Store 2'])
+dfCost3 = df2[df2['Cost'] > 3.00]
+#print dfCost3['Name']
+# Ans2
+#print df2['Name'][df2['Cost']>3.0]
+
+###############################################################################
+# Set index function
+# index the olimpics data by number of medals
+# keep the names of the countries
+data['Country'] = data.index
+data = data.set_index('Gold')
+data = data.reset_index()
+#print data.head()
+
+###############################################################################
+
+# Multi indexing
+census = pd.read_csv(add + 'census.csv')
+#print census.head()
+#print census['SUMLEV'].unique()
+
+# US is divided as COUNTRY > STATE > County
+# SUMLEV 40 is for values at state level
+# SUMLEV 50 is for values at county level
+# keep only the values for county:
+census = census[census['SUMLEV']==50]
+#print census.head()
+
+# keep only total population estimates and total number of births
+cols_to_keep = ['STNAME',
+                'CTYNAME',
+                'BIRTHS2010',
+                'BIRTHS2011',
+                'BIRTHS2012',
+                'BIRTHS2013',
+                'BIRTHS2014',
+                'BIRTHS2015',
+                'POPESTIMATE2010',
+                'POPESTIMATE2011',
+                'POPESTIMATE2012',
+                'POPESTIMATE2013',
+                'POPESTIMATE2014',
+                'POPESTIMATE2015']
+census = census[cols_to_keep]
+#print census.head()
+
+# Set a dual index
+census = census.set_index(['STNAME','CTYNAME'])
+#print census
+#print census.loc['Michigan','Washtenaw County']
+#print census.loc[[('Michigan','Washtenaw County'), ('Michigan','Wayne County')]]
+
+###############################################################################
+# question: using pd2 dataFrame above,
+# Reindex the purchased records DataFrame to be indexed hierarchically, first by store
+# then by person
+# name this indexes 'Location' and 'Name'
+# then add a new entry to it with the value of:
+# 'Name':'Kevyn', 'Item Purchased':'Kitty Food', 'Cost':3.00, 'Location': 'Store 2'
+df2['Location'] = df2.index
+pur_4 = pd.Series({'Name':'Kevyn', 'Item Purchased':'Kitty Food', 'Cost':3.00, 'Location': 'Store 2'})
+df2 = df2.append(pur_4, ignore_index=True)
+df2 = df2.set_index(['Location', 'Name'])
+print df2
+
+'''
+df = df.set_index([df.index, 'Name'])
+df.index.names = ['Location', 'Name']
+df = df.append(pd.Series(data={'Cost': 3.00, 'Item Purchased': 'Kitty Food'}, name=('Store 2', 'Kevyn')))
+'''
+
+###############################################################################
+# Dealing with missing values
+#data.fillna()
+# sorting:
+#df = df.set_index('time')
+#df = df.sort_index()
+#df = df.reset_index()
+#df = df.set_index('time', 'user')
+
+
+
+
+
+
+
+
+
+
